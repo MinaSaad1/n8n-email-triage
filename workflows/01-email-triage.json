@@ -106,13 +106,18 @@
       "id": "claude-llm",
       "name": "Claude Triage Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
+      "typeVersion": 1.5,
       "position": [
         440,
         0
       ],
       "parameters": {
-        "model": "claude-haiku-4-5-20251001",
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
         "options": {
           "maxTokens": 800
         }
@@ -154,17 +159,20 @@
       "id": "gmail-draft",
       "name": "Create Gmail Draft",
       "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
+      "typeVersion": 2.2,
       "position": [
         880,
         -120
       ],
       "parameters": {
-        "operation": "createDraft",
-        "sendTo": "={{ $json.from }}",
+        "operation": "create",
         "subject": "=Re: {{ $json.subject }}",
         "message": "={{ $json.draft_reply }}",
-        "options": {}
+        "options": {
+          "sendTo": "={{ $json.from }}"
+        },
+        "resource": "draft",
+        "emailType": "text"
       },
       "credentials": {
         "gmailOAuth2": {
@@ -184,7 +192,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "caseSensitive": false
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
           },
           "conditions": [
             {
@@ -196,7 +207,8 @@
                 "operation": "equals"
               }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       }
     },
@@ -204,15 +216,21 @@
       "id": "slack-urgent",
       "name": "Slack Urgent Alert",
       "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
+      "typeVersion": 2.5,
       "position": [
         1100,
         0
       ],
       "parameters": {
         "operation": "post",
-        "channel": "YOUR_SLACK_CHANNEL_ID",
-        "text": "=*Urgent email needs your attention*\n*From:* {{ $json.from }}\n*Subject:* {{ $json.subject }}\n*Summary:* {{ $json.one_line_summary }}\n*Category:* {{ $json.category }}\n\nDraft reply is ready in Gmail."
+        "text": "=*Urgent email needs your attention*\n*From:* {{ $json.from }}\n*Subject:* {{ $json.subject }}\n*Summary:* {{ $json.one_line_summary }}\n*Category:* {{ $json.category }}\n\nDraft reply is ready in Gmail.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "YOUR_SLACK_CHANNEL"
+        },
+        "resource": "message"
       },
       "credentials": {
         "slackApi": {

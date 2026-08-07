@@ -10,7 +10,7 @@ Extract Email Fields ─── Set node, normalize email shape
         │
         ▼
 Triage + Draft Reply ─── LangChain LLM chain
-        │                  Claude Haiku 4.5, single JSON response
+        │                  Claude Sonnet 4.6, single JSON response
         ▼
 Parse Triage Response ─── Code node, JSON.parse + merge
         │
@@ -44,7 +44,7 @@ Normalizes the Gmail trigger's payload into a flat shape:
 
 ### Triage + Draft Reply (`chainLlm` + `lmChatAnthropic`)
 
-A LangChain LLM chain with Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) wired in as the model. The prompt asks for a single JSON object containing:
+A LangChain LLM chain with Claude Sonnet 4.6 (`claude-sonnet-4-6`) wired in as the model. The prompt asks for a single JSON object containing:
 
 - `category` (one of nine fixed values)
 - `priority` (high / medium / low)
@@ -64,7 +64,7 @@ Strips markdown code fences if Claude wraps the JSON in ```` ```json ```` (it so
 
 This is deliberate. A bad model response shouldn't take down the whole workflow.
 
-### Create Gmail Draft (`gmail` node, createDraft)
+### Create Gmail Draft (`gmail` node, resource=draft operation=create)
 
 Writes a draft addressed to `{{ $json.from }}` with subject `Re: {original subject}` and the model's `draft_reply` as the body. Drafts land in the user's Drafts folder, ready for review. Nothing is sent automatically, ever.
 
@@ -86,7 +86,7 @@ If your specific use case needs sub-minute latency, swap the Gmail Trigger for a
 
 ### Why categorize and draft in a single LLM call
 
-Two separate calls (one for classification, one for drafting) would give better isolation but doubles cost and adds a node. Haiku 4.5 is strong enough to do both in one pass with a structured JSON output. The Code node parses and splits the result downstream.
+Two separate calls (one for classification, one for drafting) would give better isolation but doubles cost and adds a node. Sonnet 4.6 is strong enough to do both in one pass with a structured JSON output. The Code node parses and splits the result downstream.
 
 If you swap to a weaker model later, separate the calls. Until then, one call is the right tradeoff.
 
@@ -110,7 +110,7 @@ For high-volume inboxes where re-triggering on the same email is wasteful, see t
 |---|---|
 | Gmail poll | <500 ms per cycle |
 | Extract Email Fields | <50 ms |
-| Triage + Draft Reply (Haiku 4.5, ~800 tokens) | 1 to 3 sec per email |
+| Triage + Draft Reply (Sonnet 4.6, ~800 tokens) | 1 to 3 sec per email |
 | Parse Triage Response | <50 ms |
 | Create Gmail Draft | 200 to 800 ms |
 | Slack Urgent Alert | 200 to 500 ms |

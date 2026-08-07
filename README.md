@@ -14,7 +14,7 @@
 
 - Polls Gmail every 5 minutes for unread inbox messages
 - Extracts sender, subject, and body into a normalized shape
-- Sends the email to Claude Haiku 4.5 with a single prompt that returns category, priority, one-line summary, draft reply, and a label suggestion as JSON
+- Sends the email to Claude Sonnet 4.6 with a single prompt that returns category, priority, one-line summary, draft reply, and a label suggestion as JSON
 - Creates a Gmail draft addressed to the sender, ready for you to review and send
 - If priority is `high`, also posts a Slack alert with sender, subject, summary, and category
 
@@ -28,7 +28,7 @@ Extract Email Fields  ─── Set node, normalize {from, subject, body, date, 
         │
         ▼
 Triage + Draft Reply  ─── LangChain LLM chain
-        │                  uses Claude Haiku 4.5, returns JSON
+        │                  uses Claude Sonnet 4.6, returns JSON
         ▼
 Parse Triage Response ─── Code node, JSON.parse + merge with email fields
         │
@@ -44,9 +44,12 @@ Eight nodes plus a sticky README. One LLM call per email, one draft per email, o
 
 ## Requirements
 
+> **Note**: cost and latency figures below were measured on Claude Haiku 4.5. The workflow now ships with Claude Sonnet 4.6 as the default, which is more capable and more expensive. Select a Haiku model in the node's model dropdown to get back to the numbers quoted here.
+
+
 - **n8n** >= 1.78 (cloud or self-hosted)
 - **Gmail account** with OAuth2 credentials configured in n8n (read + draft + modify scopes)
-- **Anthropic API key** for Claude Haiku 4.5 (model id: `claude-haiku-4-5-20251001`)
+- **Anthropic API key** for Claude Sonnet 4.6 (model id: `claude-sonnet-4-6`)
 - **Slack workspace** with a bot user and a channel for urgent alerts (optional, only if you want priority pings)
 - **Reasonable inbox volume**. See the cost note in [`docs/SECURITY.md`](docs/SECURITY.md). At ~50 emails/day expect ~3 to 10 USD/month in Claude costs.
 
@@ -104,7 +107,7 @@ Then activate the workflow. The Gmail trigger starts polling every 5 minutes.
 ## Configuration
 
 - **Different polling interval**: edit `Gmail Poll Unread`. Five minutes is a reasonable default. Going below 1 minute risks Gmail API rate limits and gives Claude more emails to process per cycle.
-- **Different model**: swap the Anthropic model in `Claude Triage Model`. Haiku 4.5 is the cost/quality sweet spot for triage. Sonnet 4.6 is overkill for classification but fine if you also want long, contextual draft replies.
+- **Different model**: swap the Anthropic model in `Claude Triage Model`. Sonnet 4.6 is the cost/quality sweet spot for triage. Sonnet 4.6 is overkill for classification but fine if you also want long, contextual draft replies.
 - **More routing channels**: add a Switch node after `Parse Triage Response` keyed on `category`, with one Slack node per channel (support, sales, billing, etc.). The current template only routes urgents.
 - **Auto-archive spam**: add a Gmail node after the Switch branch for `category == spam` that calls `messages.modify` with `removeLabelIds: ['INBOX']`. Read the prompt-injection note in [`docs/SECURITY.md`](docs/SECURITY.md) before turning this on, you do not want a malicious sender talking the model into auto-archiving real complaints.
 - **Log to Airtable or a sheet**: add a final node after `Parse Triage Response` that writes one row per email with category, priority, summary, and timestamp. Useful for "did the model classify Tuesday's batch correctly?" without scrolling executions.

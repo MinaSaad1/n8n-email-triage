@@ -68,7 +68,10 @@ If you extend the workflow with auto-archive on `category: spam` or auto-reply o
 
 ### Layer 5: Cost control on Claude
 
-**Problem**: Every email that hits the trigger fires a Claude Haiku 4.5 call with up to ~1500 input tokens (subject + body + system prompt) and up to 800 output tokens. At ~50 emails/day that's ~3 to 10 USD/month. At 500 emails/day with newsletters and auto-replies, you're easily into 50+ USD/month and climbing. Worse, without de-duplication the same unread email gets re-processed every 5 minutes until read.
+> **Note**: cost and latency figures below were measured on Claude Haiku 4.5. The workflow now ships with Claude Sonnet 4.6 as the default, which is more capable and more expensive. Select a Haiku model in the node's model dropdown to get back to the numbers quoted here.
+
+
+**Problem**: Every email that hits the trigger fires a Claude Sonnet 4.6 call with up to ~1500 input tokens (subject + body + system prompt) and up to 800 output tokens. At ~50 emails/day that's ~3 to 10 USD/month. At 500 emails/day with newsletters and auto-replies, you're easily into 50+ USD/month and climbing. Worse, without de-duplication the same unread email gets re-processed every 5 minutes until read.
 
 **Fix**:
 - Set a hard spend limit in the Anthropic console (Settings -> Limits). Far better to have the workflow error than to find a 400 USD bill at month end.
