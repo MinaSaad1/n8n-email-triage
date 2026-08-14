@@ -1,8 +1,8 @@
 {
-  "name": "NTF 03: Email Triage Agent",
+  "name": "Email Triage Agent",
   "tags": [
     {
-      "name": "NTF-Playbook"
+      "name": "n8n-ai-agents"
     }
   ],
   "settings": {
@@ -19,7 +19,7 @@
         -520
       ],
       "parameters": {
-        "content": "## NTF 03: Email Triage Agent\n\n**Trigger:** Gmail polling every 5 minutes (unread, inbox)\n\n**Flow:**\n1. Poll Gmail for unread emails\n2. Extract sender, subject, body\n3. Claude classifies category and drafts reply\n4. Create Gmail draft (ready to review)\n5. If priority is high, also send a Slack ping\n\n**Setup:**\n- Connect Gmail OAuth credential (read + draft + modify scopes only)\n- Set your Slack channel id for urgent alerts\n- Edit the Claude prompt categories to match your inbox types\n- Note: this template does not auto-mark emails as read or apply a label. Add an `addLabel` step downstream if you want once-only processing.",
+        "content": "## Email Triage Agent\n\n**Trigger:** Gmail polling every 5 minutes (unread, inbox)\n\n**Flow:**\n1. Poll Gmail for unread emails\n2. Extract sender, subject, body\n3. Claude classifies category and drafts reply\n4. Create Gmail draft (ready to review)\n5. If priority is high, also send a Slack ping\n\n**Setup:**\n- Connect Gmail OAuth credential (read + draft + modify scopes only)\n- Set your Slack channel id for urgent alerts\n- Edit the Claude prompt categories to match your inbox types\n- Note: this template does not auto-mark emails as read or apply a label. Add an `addLabel` step downstream if you want once-only processing.",
         "height": 380,
         "width": 540,
         "color": 6
